@@ -12,7 +12,7 @@ Este proyecto cubre las funcionalidades obligatorias del **Bootcamp**, incluyend
 | Nivel        | Funcionalidad           | Descripción                                                                 |
 |---------------|--------------------------|------------------------------------------------------------------------------|
 | **Básico**    | Conversación Inteligente | Integración con **Gemini 2.5 Flash** (vía LangChain) para responder preguntas complejas. |
-| **Básico**    | Comandos Estáticos       | `/start`, `/help`, `/fecha` (Fecha y hora actual).                          |
+| **Básico**    | Comandos Estáticos       | `/start`, `/help`, `/fecha` (Fecha y hora actual), `/clima`, `/saludo`                         |
 | **Intermedio**| LangChain Tools          | Implementación de dos *Tools* personalizadas: **Clima** y **Calculadora**.  |
 | **Avanzado**  | LangChain Agent          | El bot usa un **Agente (Agent)** que decide automáticamente qué *Tool* usar (o si responder con Gemini) basándose en la intención del usuario. |
 
@@ -80,5 +80,4 @@ El proyecto sigue una estructura simple y funcional, ideal para el desarrollo r�
 ├── .env                  # Claves secretas (IGNORADO por Git)
 ├── .gitignore            # Archivo para ignorar dependencias y claves
 ├── bot.py                # Contiene toda la lógica del bot, handlers y el Agente/Tools
-├── requirements.txt      # Lista de dependencias del proyecto
 └── README.md             # Este archivo
