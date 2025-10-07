@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/sarahyleiva/Desktop/Bootcamp Machine Learning/Tarea2/bot_env/bin/python3.12" "$0" "$@"
+'''exec' "/Users/sarahyleiva/Desktop/Bootcamp Machine Learning/chatbot/Kodigo-chatbot/bot_env/bin/python3.13" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

@@ -9,7 +9,7 @@ alias deactivate 'test $?_OLD_VIRTUAL_PATH != 0 && setenv PATH "$_OLD_VIRTUAL_PA
 # Unset irrelevant variables.
 deactivate nondestructive
 
-setenv VIRTUAL_ENV '/Users/sarahyleiva/Desktop/Bootcamp Machine Learning/Tarea2/bot_env'
+setenv VIRTUAL_ENV '/Users/sarahyleiva/Desktop/Bootcamp Machine Learning/chatbot/Kodigo-chatbot/bot_env'
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/"bin":$PATH"

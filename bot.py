@@ -8,7 +8,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import AgentType, Tool, initialize_agent
-
+import locale  # <-- ¡NUEVA IMPORTACIÓN!
 import html  # Para escapar caracteres especiales en HTML
 # ==============================================================================
 # 1. SETUP INICIAL Y CARGA DE VARIABLES DE ENTORNO
@@ -58,6 +58,48 @@ def obtener_clima_tool(ciudad: str) -> str:
         )
     except Exception as e:
         return f"Ocurrió un error al procesar la solicitud de clima: {e}"
+
+
+# Reusa la función de la Tool (que debe estar definida en la sección 2)
+# from . import obtener_clima_tool # Si estuviera en otro archivo
+
+async def clima_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Maneja el comando /clima [ciudad]."""
+    
+    # 1. Extraer la ciudad de los argumentos (ej: /clima San Salvador)
+    if not context.args:
+        await update.message.reply_text("Por favor, especifica una ciudad. Ejemplo: /clima Tokio")
+        return
+    
+    ciudad_query = " ".join(context.args)
+    
+    await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
+
+    # 2. Llamar directamente a la función que usa la API (la misma que usa la Tool)
+    try:
+        resultado_clima = obtener_clima_tool(ciudad_query)
+        
+        # 3. Enviar el resultado. Usamos HTML por si la función devuelve emojis o Markdown.
+        await update.message.reply_text(resultado_clima, parse_mode='HTML')
+        
+    except Exception as e:
+        print(f"Error en el comando /clima: {e}")
+        await update.message.reply_text("Lo siento, no pude obtener el clima para esa ciudad.")
+
+async def saludo_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Maneja el comando /saludo [nombre]."""
+    
+    if not context.args:
+        # Si el usuario solo escribe /saludo, usamos su nombre de usuario
+        nombre = update.message.from_user.first_name or "Usuario"
+    else:
+        # Si el usuario escribe /saludo Sarahy, usamos Sarahy
+        nombre = " ".join(context.args)
+        
+    response_text = f"👋 ¡Hola, {nombre}! Es un placer saludarte. ¿En qué puedo ayudarte hoy?"
+    await update.message.reply_text(response_text)
+
+
 
 # --- Tool 2: Calculadora (Nivel Intermedio) ---
 def calculator_tool(expression: str) -> str:
@@ -133,26 +175,33 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "**/start** - Mensaje de bienvenida.\n"
         "**/help** - Muestra esta lista de comandos.\n"
         "**/fecha** - Muestra la fecha y hora actual.\n"
-        "Cualquier otra pregunta será respondida por la IA."
+        "**/clima [ciudad]** - Información meteorológica de una ciudad específica.\n" # <-- ¡Añadido!
+        "**/saludo [nombre]** - Un comando personalizado para saludar.\n\n" # <-- ¡Añadido!
+        "Cualquier otra pregunta será respondida por la IA y sus herramientas (Clima/Calculadora)."
     )
     await update.message.reply_text(help_message, parse_mode='Markdown')
 
+
 async def fecha(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Maneja el comando /fecha mostrando la fecha y hora local."""
-    # Usamos una zona horaria común, puedes cambiarla a 'America/El_Salvador'
-    timezone = pytz.timezone('America/New_York') 
+    
+    # Usamos una zona horaria común (por ejemplo, hora local en El Salvador)
+    timezone = pytz.timezone('America/El_Salvador') 
     now = datetime.datetime.now(timezone)
+    
+    # ⚠️ Nota: Para que los días y meses salgan en español (ej: martes, octubre), 
+    # necesitas tener la configuración de 'locale' en tu script.
     
     fecha_format = now.strftime('%A, %d de %B de %Y')
     hora_format = now.strftime('%H:%M:%S')
     
     response_text = (
-        f"📅 **Fecha y Hora Actual**\n"
+        f"📅 <b>Fecha y Hora Actual</b>\n" # Usamos <b> para HTML
         f"Fecha: {fecha_format}\n"
         f"Hora: {hora_format} (Zona: {timezone})"
     )
-    await update.message.reply_text(response_text, parse_mode='Markdown')
-
+    # 🚨 CAMBIO CLAVE AQUÍ: Usamos parse_mode='HTML' para evitar errores del parser.
+    await update.message.reply_text(response_text, parse_mode='HTML')
 
 # ==============================================================================
 # 5. HANDLER PRINCIPAL DE MENSAJES (LANGCHAIN AGENT)
@@ -199,6 +248,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 # ==============================================================================
 
 def main() -> None:
+    
     """Inicia el bot de Telegram."""
     if not TELEGRAM_BOT_TOKEN:
         print("La aplicación no puede iniciar por falta de TELEGRAM_BOT_TOKEN.")
@@ -211,6 +261,8 @@ def main() -> None:
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("fecha", fecha))
+    application.add_handler(CommandHandler("clima", clima_command))
+    application.add_handler(CommandHandler("saludo", saludo_command))
     
     # Manejar cualquier otro mensaje de texto con el agente (Nivel Avanzado)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
