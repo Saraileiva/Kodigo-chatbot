@@ -1,4 +1,5 @@
 # 🤖 Asistente de Telegram con Gemini y LangChain
+**Enlace al chatbot: @Kodigonewbot** 
 
 Este proyecto es un **bot de Telegram inteligente** desarrollado en **Python** que utiliza **Google Gemini AI** como cerebro principal, orquestado por el framework **LangChain**.  
 El bot es capaz de manejar conversaciones naturales y utilizar herramientas específicas (*Tools*) para obtener información en tiempo real, como el clima y resultados de cálculos matemáticos.
