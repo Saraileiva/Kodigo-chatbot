@@ -279,7 +279,7 @@ def main() -> None:
             listen="0.0.0.0",
             port=PORT,
             url_path=TELEGRAM_BOT_TOKEN,
-            webhook_url=f"{RENDER_URL}{TELEGRAM_BOT_TOKEN}"
+            webhook_url=f"{RENDER_URL}/{TELEGRAM_BOT_TOKEN}"
         )
     else:
         print("🧩 Ejecutando bot localmente con Polling... (Ctrl+C para detener)")
