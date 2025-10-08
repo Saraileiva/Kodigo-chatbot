@@ -265,9 +265,15 @@ def main() -> None:
     # Manejar cualquier otro mensaje de texto con el agente (Nivel Avanzado)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    if os.environ.get('RENDER_EXTERNAL_URL') and RENDER_URL:
-        # 1. Si RENDER_EXTERNAL_URL existe, usamos Webhook (Producción)
-        # Esto incluye el caso en que debiste configurarla manualmente.
+    if os.environ.get('PORT'):
+        # 1. Chequeo de URL (Debe estar configurada manualmente en Render)
+        if not RENDER_URL:
+            # Si no hay URL, es un error de configuración del usuario en Render.
+            print("ERROR FATAL: RENDER_EXTERNAL_URL no configurada. El bot NO puede usar Webhook. Deteniendo.")
+            # Es importante detener la ejecución si falta el recurso crítico.
+            return 
+
+        # 2. Ejecutar Webhook
         application.run_webhook(
             listen="0.0.0.0",
             port=PORT,
@@ -276,25 +282,10 @@ def main() -> None:
         )
         print(f"Bot corriendo via Webhook en {RENDER_URL}")
         
-    elif os.environ.get('PORT'):
-    
-        print(f"Bot corriendo en ambiente de producción (PORT={PORT}). Forzando Webhook.")
-        
-        # ⚠️ Si RENDER_URL es None, esto fallará. La ÚNICA solución es que la URL exista.
-        if RENDER_URL:
-            
-            application.run_webhook(
-                listen="0.0.0.0",
-                port=PORT,
-                url_path=TELEGRAM_BOT_TOKEN,
-                webhook_url=f"{RENDER_URL}{TELEGRAM_BOT_TOKEN}"
-            )
-            print(f"Bot corriendo via Webhook en {RENDER_URL}")
-
-        else:
-            # Iniciar el bot localmente (Polling)
-            print("El bot se está ejecutando localmente via Polling... Presiona Ctrl+C para detenerlo.")
-            application.run_polling(allowed_updates=Update.ALL_TYPES)
+    else:
+        # Esto solo se ejecuta si no hay variable PORT (ej. corriendo localmente sin dotenv)
+        print("El bot se está ejecutando localmente via Polling... Presiona Ctrl+C para detenerlo.")
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
     main()
