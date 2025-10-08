@@ -281,22 +281,20 @@ def main() -> None:
         print(f"Bot corriendo en ambiente de producción (PORT={PORT}). Forzando Webhook.")
         
         # ⚠️ Si RENDER_URL es None, esto fallará. La ÚNICA solución es que la URL exista.
-        if RENDER_URL is None:
-            print("ERROR FATAL: RENDER_EXTERNAL_URL no está configurada. El bot no puede usar Webhook.")
-            return # Detener la ejecución si no hay URL para el Webhook
+        if RENDER_URL:
+            
+            application.run_webhook(
+                listen="0.0.0.0",
+                port=PORT,
+                url_path=TELEGRAM_BOT_TOKEN,
+                webhook_url=f"{RENDER_URL}{TELEGRAM_BOT_TOKEN}"
+            )
+            print(f"Bot corriendo via Webhook en {RENDER_URL}")
 
-        application.run_webhook(
-            listen="0.0.0.0",
-            port=PORT,
-            url_path=TELEGRAM_BOT_TOKEN,
-            webhook_url=f"{RENDER_URL}{TELEGRAM_BOT_TOKEN}"
-        )
-        print(f"Bot corriendo via Webhook en {RENDER_URL}")
-
-    else:
-        # Iniciar el bot localmente (Polling)
-        print("El bot se está ejecutando localmente via Polling... Presiona Ctrl+C para detenerlo.")
-        application.run_polling(allowed_updates=Update.ALL_TYPES)
+        else:
+            # Iniciar el bot localmente (Polling)
+            print("El bot se está ejecutando localmente via Polling... Presiona Ctrl+C para detenerlo.")
+            application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
     main()
