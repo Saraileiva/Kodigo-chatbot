@@ -267,10 +267,20 @@ def main() -> None:
     # Manejar cualquier otro mensaje de texto con el agente (Nivel Avanzado)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
+    if RENDER_URL:
+        # Configuración para Webhook en Render
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            url_path=TELEGRAM_BOT_TOKEN,
+            webhook_url=f"{RENDER_URL}/{TELEGRAM_BOT_TOKEN}"
+        )
+        print(f"Bot corriendo via Webhook en {RENDER_URL}")
+    else:
     # Iniciar el bot
-    print("El bot se está ejecutando... Presiona Ctrl+C para detenerlo.")
-    # El polling es el método que usa el bot para preguntar a Telegram por nuevos mensajes
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+        print("El bot se está ejecutando... Presiona Ctrl+C para detenerlo.")
+        # El polling es el método que usa el bot para preguntar a Telegram por nuevos mensajes
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
     main()
