@@ -10,7 +10,7 @@ google-auth==2.41.1
 googleapis-common-protos==1.70.0
 grpcio==1.75.1
 grpcio-status==1.75.1
-h11==0.16.0
+h11==0.14.0 
 httpcore==0.17.3
 httpx==0.24.1
 idna==3.10
