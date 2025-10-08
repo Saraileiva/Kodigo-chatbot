@@ -244,48 +244,47 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 # ==============================================================================
 
 def main() -> None:
-    
     """Inicia el bot de Telegram."""
-    global RENDER_URL
-    
+
+    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    RENDER_URL = os.getenv("RENDER_URL")  # Ej: "https://tu-app.onrender.com/"
+    PORT = int(os.getenv("PORT", "8080"))
+
+    # Verificación de token
     if not TELEGRAM_BOT_TOKEN:
-        print("La aplicación no puede iniciar por falta de TELEGRAM_BOT_TOKEN.")
+        print("ERROR: No se encontró TELEGRAM_BOT_TOKEN. Configúralo en tu entorno.")
         return
-        
-    # Crear la aplicación y pasarle el token
+
+    # Crear aplicación
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
-    # Añadir handlers para comandos estáticos
+    # Agregar comandos
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("fecha", fecha))
     application.add_handler(CommandHandler("clima", clima_command))
     application.add_handler(CommandHandler("saludo", saludo_command))
 
-    # Manejar cualquier otro mensaje de texto con el agente (Nivel Avanzado)
+    # Manejar mensajes de texto
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    if os.environ.get('PORT'):
-        # 1. Chequeo de URL (Debe estar configurada manualmente en Render)
+    # Detectar entorno (Render o local)
+    if os.getenv("PORT"):  # Render usa PORT
         if not RENDER_URL:
-            # Si no hay URL, es un error de configuración del usuario en Render.
-            print("ERROR FATAL: RENDER_EXTERNAL_URL no configurada. El bot NO puede usar Webhook. Deteniendo.")
-            # Es importante detener la ejecución si falta el recurso crítico.
-            return 
+            print("🚨 ERROR: Falta la variable RENDER_URL. Configúrala en Render Dashboard.")
+            return
 
-        # 2. Ejecutar Webhook
+        print(f"🚀 Iniciando bot con Webhook en Render ({RENDER_URL})...")
         application.run_webhook(
             listen="0.0.0.0",
             port=PORT,
             url_path=TELEGRAM_BOT_TOKEN,
             webhook_url=f"{RENDER_URL}{TELEGRAM_BOT_TOKEN}"
         )
-        print(f"Bot corriendo via Webhook en {RENDER_URL}")
-        
     else:
-        # Esto solo se ejecuta si no hay variable PORT (ej. corriendo localmente sin dotenv)
-        print("El bot se está ejecutando localmente via Polling... Presiona Ctrl+C para detenerlo.")
+        print("🧩 Ejecutando bot localmente con Polling... (Ctrl+C para detener)")
         application.run_polling(allowed_updates=Update.ALL_TYPES)
+
 
 if __name__ == "__main__":
     main()

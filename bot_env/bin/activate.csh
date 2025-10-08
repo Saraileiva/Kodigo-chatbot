@@ -13,13 +13,13 @@ setenv VIRTUAL_ENV '/Users/sarahyleiva/Desktop/Bootcamp Machine Learning/chatbot
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/"bin":$PATH"
+setenv VIRTUAL_ENV_PROMPT bot_env
 
 
 set _OLD_VIRTUAL_PROMPT="$prompt"
 
 if (! "$?VIRTUAL_ENV_DISABLE_PROMPT") then
-    set prompt = '(bot_env) '"$prompt"
-    setenv VIRTUAL_ENV_PROMPT '(bot_env) '
+    set prompt = "("bot_env") $prompt:q"
 endif
 
 alias pydoc python -m pydoc
