@@ -1,5 +1,6 @@
 # 🤖 Asistente de Telegram con Gemini y LangChain
 **Enlace al chatbot: @Kodigonewbot** 
+---
 **Se encuentra desployado en Render https://kodigo-chatbot.onrender.com**
 
 Este proyecto es un **bot de Telegram inteligente** desarrollado en **Python** que utiliza **Google Gemini AI** como cerebro principal, orquestado por el framework **LangChain**.  
