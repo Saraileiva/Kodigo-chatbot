@@ -26,6 +26,8 @@ if not GEMINI_API_KEY:
 if not WEATHER_API_KEY:
     print("ADVERTENCIA: WEATHER_API_KEY no encontrada. La herramienta de Clima no funcionará.")
 
+PORT = int(os.environ.get('PORT', '8080')) # Puerto estándar de Render
+RENDER_URL = os.environ.get('RENDER_EXTERNAL_URL') # URL pública que Render proporciona
 
 # ==============================================================================
 # 2. DEFINICIÓN DE TOOLS PARA LANGCHAIN
@@ -226,17 +228,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
         # 1. Escapar el texto: Convierte caracteres especiales a entidades HTML
         # Esto asegura que caracteres como <, >, & y * sean tratados como texto.
+        clean_output = agent_output.replace('**', '<b>').replace('<b>', '</b>', 1) 
         clean_output = html.escape(agent_output)
 
-        # 2. Reemplazar caracteres Markdown V2 que pueden causar problemas.
-        # Esto es un refuerzo si el escape no fue suficiente.
-        # Reemplazamos los asteriscos * (que causaban el error) por algo inocuo.
-        clean_output = clean_output.replace('\\*', '*') 
-        clean_output = clean_output.replace('*', '') # Elimina asteriscos restantes si es necesario
-        
-
         # Enviar la respuesta del agente (ya sea de Gemini o de una Tool)
-        await update.message.reply_text(response["output"], parse_mode='HTML')
+        await update.message.reply_text(clean_output, parse_mode='HTML')
         
     except Exception as e:
         print(f"Error al invocar al agente LangChain: {e}")
